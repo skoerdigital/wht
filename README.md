@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WHT Compliance — prototyp prezentacyjny
 
-## Getting Started
+Klikalny mockup systemu identyfikacji i rozliczania podatku u źródła (WHT). Pokazuje kompletny
+proces end-to-end dla inwestorów. **To nie jest aplikacja produkcyjna** — wszystkie dane są
+zaszyte na potrzeby demonstracji, brak backendu i realnych integracji.
 
-First, run the development server:
+Spójny z `../business-spec.md` i `../technical-spec.md`.
+
+## Uruchomienie
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install      # jeśli jeszcze nie zainstalowano
+npm run dev      # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Stack
+Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · lucide-react · Recharts. Styl: Clean SaaS (akcent indygo).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Ekrany
+- **Kokpit** (`/`) — KPI, licznik progu 2 mln, alerty, kolejka spraw.
+- **Skrzynka dokumentów** (`/skrzynka`) — 3 kanały ingestion (Upload / ERP / KSeF), wykrywanie WHT, „Nowy dokument".
+- **Sprawa** (`/sprawa/[id]`) — kreator E2E (8 kroków): Dokument → Kontrahent → Klasyfikacja (reguły + AI) → Należyta staranność → Stawka/UPO → Próg 2 mln → Decyzja → Podsumowanie.
+- **Rejestr WHT** (`/rejestr`) — ewidencja transakcji + filtr REFUND_PENDING.
+- **Deklaracje i wnioski** (`/deklaracje`) — IFT-2R / CIT-10Z / WH-WCZ z podglądem XML i walidacją schemy.
+- **Kontrahenci** (`/kontrahenci`) — karty nierezydentów z akumulatorem i dokumentacją.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scenariusz demo (4 ścieżki)
+Przełącznik „Scenariusze demo" w górnym pasku prowadzi do każdej sprawy:
 
-## Learn More
+| Scenariusz | Sprawa | Wynik |
+|---|---|---|
+| **A — Happy path** | Bellini Media (IT, licencja 180 tys.) | Obniżona stawka UPO 10% |
+| **B — Brak dokumentów** | Orion Data (GB, usługi 240 tys.) | Blokada ulgi → stawka ustawowa 20% |
+| **C — Pay & Refund** (flagowy) | Muster Holding (DE, odsetki 2,5 mln) | Split 2,0M×5% + 0,5M×20% = 200k, REFUND_PENDING 75k |
+| **D — Zwolnienie UE** | Iberia Capital (ES, dywidenda 1,5 mln) | Dyrektywa PS → 0% |
 
-To learn more about Next.js, take a look at the following resources:
+**Wskazówka prezentacyjna:** do kroku kreatora można dolinkować bezpośrednio przez parametr
+`?krok=N` (1–8), np. `/sprawa/WHT-2025-0142?krok=6` otwiera od razu ekran progu 2 mln / Pay & Refund.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Rekomendowana ścieżka pokazu
+1. **Kokpit** — pokaż próg przekroczony i alert REFUND_PENDING.
+2. **Skrzynka** — zwróć uwagę, że KSeF (faktury krajowe) jest poprawnie odrzucany jako „Nie podlega WHT".
+3. **Sprawa C** — przeklikaj 8 kroków; kulminacja na kroku 6 (split kwoty) i 7 (3 opcje decyzji).
+4. **Deklaracje** — gotowe XML IFT-2R/CIT-10Z + wniosek WH-WCZ.
+5. (Opcjonalnie) Scenariusze A / B / D dla pokazania szerokości logiki.
